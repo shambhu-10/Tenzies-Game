@@ -1,35 +1,77 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react"
+import { useState } from "react"
+import Die from "./Die"
+import { nanoid } from "nanoid"
+import Confetti from "react-confetti"
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    function generateNewDice() {
+        return (
+            new Array(10)
+                .fill(0)
+                .map(() => (
+                    {
+                        id: nanoid(),
+                        value: Math.ceil(Math.random() * 6),
+                        isHeld: false
+                    }
+                ))
+        )
+    }
+
+    const [dice, setDice] = useState(() => generateNewDice())
+    const [count, setCount] = useState(0)
+
+    let gameWon =
+        dice.every(die => die.isHeld) &&
+        dice.every(die => die.value == dice[0].value)
+
+
+    let diceElements = dice.map((el) =>
+        <Die key={el.id} id={el.id} value={el.value} isHeld={el.isHeld} hold={hold} />
+    )
+
+    function roll() {
+        if (gameWon) {
+            setCount(0)
+            setDice(generateNewDice())
+        } else {
+            setCount(preValue => preValue + 1)
+            setDice(preDice =>
+                preDice.map(el =>
+                    el.isHeld
+                        ? el
+                        : { ...el, value: Math.ceil(Math.random() * 6) }
+                ))
+        }
+    }
+
+    function hold(id) {
+        setDice(preValue =>
+            preValue.map(el =>
+                el.id === id
+                    ? { ...el, isHeld: !el.isHeld }
+                    : el
+            ))
+    }
+
+    return (
+        <main>
+            {gameWon && <Confetti />}
+            <div className="container">
+                <h3 className="heading">Tenzies</h3>
+                <p className="instructions">Roll until all dice are the same. Click each die to freeze it at its current value between rolls.</p>
+                <div className="btn-container">
+                    {diceElements}
+                </div>
+                <button id="roll-btn" onClick={roll}>{gameWon ? "New Game" : "Roll"}</button>
+                <p>Total count {count}</p>
+            </div>
+            <footer>
+                <p>Made by Shambhu.</p>
+            </footer>
+        </main>
+        
+    )
 }
-
-export default App

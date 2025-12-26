@@ -33,11 +33,8 @@ Tenzies is a fun and fast-paced dice game where the goal is to get all dice to s
 - React
 
 ---
-
 ## 🚀 Getting Started
 
 1. Clone the repository:
    ```bash
    git clone https://github.com/your-username/tenzies-game.git
-
-
